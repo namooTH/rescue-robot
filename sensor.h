@@ -5,7 +5,11 @@ struct Sensor {
     unsigned short blackValue;
     unsigned short whiteValue;
 
-    double get_value() {
-        (double) (analog(channel) - whiteValue) / (double) (blackValue - whiteValue); 
+    int get_value() {
+        return analog(channel); 
+    }
+
+    double get_normalised() {
+        return (double) (get_value() - whiteValue) / (double) (blackValue - whiteValue); 
     }
 };

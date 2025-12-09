@@ -9,13 +9,13 @@
 const MotorSet motorSets[2] = { {1, 2},   // Front
                                 {3, 4} }; // Back
 
-SensorSet sensorSets[4] = { {Sensor{0, 0, 0}, Sensor{1, 0, 0}},   // Front
-                            {Sensor{2, 0, 0}, Sensor{3, 0, 0}},   // Back
-                            {Sensor{4, 0, 0}, Sensor{6, 0, 0}},   // Left
-                            {Sensor{5, 0, 0}, Sensor{7, 0, 0}} }; // Right
+SensorSet sensorSets[4] = { {Sensor{0, 1, 1}, Sensor{1, 1, 1}},   // Front
+                            {Sensor{2, 1, 1}, Sensor{3, 1, 1}},   // Back
+                            {Sensor{4, 1, 1}, Sensor{6, 1, 1}},   // Left
+                            {Sensor{5, 1, 1}, Sensor{7, 1, 1}} }; // Right
 
 SensorSetPairController sensor_controller = {sensorSets[2], sensorSets[3]};
-MotorSetPairController  motor_controller  = {sensor_controller, sensorSets[1], sensorSets[2], motorSets[0], motorSets[1]};
+MotorSetPairController  motor_controller  = {sensor_controller, sensorSets[1], sensorSets[2], motorSets[0], motorSets[1]};  
 
 IMUSensor imu_sensor;
 
@@ -35,28 +35,36 @@ void cali_sensors() {
         while (!SW_A()) {
             oled.clear();
             #ifdef DEBUG
-            oled.text(1,0, "%s", sensor_debug_names[sensor_idx].c_str());
+            char *sensor_name = new char[ sensor_debug_names[sensor_idx].length() ];
+            strcpy(sensor_name, sensor_debug_names[sensor_idx].c_str());
+            oled.text(1,0, sensor_name);
             #endif
             oled.text(2,0, "%d        %d", sensor_set.left.get_value(), sensor_set.right.get_value());
-            oled.text(3,0, "%d", sensor_set.get_value());
             oled.show();
-
-            sensor_idx++;
         }
         while (SW_A());
+        sensor_idx++;
     }
 
-    sensor_idx = 0;
+    oled.clear();
     while (!SW_A()) {
-        oled.clear();
-        for (SensorSet sensor_set: sensorSets) {
-            oled.text(sensor_idx,0, "%s", sensor_debug_names[sensor_idx].c_str());
-        
-            sensor_idx++;
-            while (SW_A());
-        oled.show();
         sensor_idx = 0;
+        oled.text(1,0, "White");
+        for (SensorSet sensor_set: sensorSets) {
+            oled.text(sensor_idx+1, 0, "%d        %d", sensor_set.left.whiteValue, sensor_set.right.whiteValue);
+            sensor_idx++;
+            oled.show();
+        }
     }
+    oled.clear();
+    while (!SW_A()) {
+        sensor_idx = 0;
+        oled.text(1,0, "Black");
+        for (SensorSet sensor_set: sensorSets) {
+            oled.text(sensor_idx+1, 0, "%d        %d", sensor_set.left.blackValue, sensor_set.right.blackValue);
+            sensor_idx++;
+            oled.show();
+        }
     }
 }
 

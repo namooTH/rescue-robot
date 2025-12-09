@@ -1,0 +1,1 @@
+python .\vscode_setup\setup.py

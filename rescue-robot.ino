@@ -46,15 +46,16 @@ void cali_sensors() {
         while (SW_A());
     }
 
-    size_t sensor_idx = 0;
+    sensor_idx = 0;
     while (!SW_A()) {
         oled.clear();
         for (SensorSet sensor_set: sensorSets) {
-            oled.text(1,0, "%s", sensor_debug_names[sensor_idx].c_str());
+            oled.text(sensor_idx,0, "%s", sensor_debug_names[sensor_idx].c_str());
         
             sensor_idx++;
             while (SW_A());
         oled.show();
+        sensor_idx = 0;
     }
     }
 }

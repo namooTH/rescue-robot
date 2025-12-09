@@ -1,5 +1,9 @@
 #include <motorSet.h>
 
+#ifndef RESCUE_CONFIG
+#include <sensorSetPairController.h>
+#endif
+
 class MotorSetPairController {
     public:
         SensorSetPairController sensor_set_pair_controller;        
@@ -26,7 +30,7 @@ class MotorSetPairController {
         void run_until_black() {
             double direction = sensor_set_pair_controller.get_direction();
             move(20, direction);
-            while (front_sensor.get_value() < 0.9);
+            while (front_sensor.get_normalised() < 0.9);
             stop();
         }
 };

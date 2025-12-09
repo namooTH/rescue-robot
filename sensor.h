@@ -1,12 +1,20 @@
 #include <POP32.h>
 
 struct Sensor {
-    u_int8_t channel;
-    unsigned short blackValue;
-    unsigned short whiteValue;
+    int channel;
+    int blackValue;
+    int whiteValue;
+
+    void set_white() {
+        whiteValue = get_value(); 
+    }
+
+    void set_black() {
+        blackValue = get_value(); 
+    }
 
     int get_value() {
-        return analog(channel); 
+        return analog(channel);
     }
 
     double get_normalised() {

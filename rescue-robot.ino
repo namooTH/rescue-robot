@@ -10,14 +10,19 @@ void setup() {
 }
 
 void run() {
-    // motor_controller.rotate_to(180);
-    // delay(1000);
-    // motor_controller.rotate_to(90);
-    motor_controller.run_until_white();
+    motor_controller.backward = false;
+    motor_controller.run_until_black(false); motor_controller.run_until_white();
     motor_controller.run_until_black();
-    motor_controller.run_until_white();
+    motor_controller.rotate_to(-90);
+    motor_controller.run_until_black();
+    motor_controller.rotate_to(180);
+    motor_controller.align();
     motor_controller.run_until_black();
     motor_controller.rotate_to(90);
+    motor_controller.run_until_black();
+    motor_controller.rotate_to(180);
+    motor_controller.run_until_black();
+    // motor_controller.deploy_dice_front();    
 }
 
 Menu menu = { {{"Calibrate Sensors", cali_sensors}, {"Run", run}} };

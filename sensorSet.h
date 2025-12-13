@@ -23,4 +23,8 @@ struct SensorSet {
     double get_normalised() {
         return (left->get_normalised() + right->get_normalised()) / 2.0f;
     }
+
+    double get_direction() {
+        return left->get_normalised() - right->get_normalised();
+    }
 };

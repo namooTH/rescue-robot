@@ -1,12 +1,13 @@
+#pragma once
 #include <motorSet.h>
-
-#ifndef RESCUE_CONFIG
 #include <sensorSetPairController.h>
-#endif
+#include <IMUSensor.h>
 
 class MotorSetPairController {
     public:
-        SensorSetPairController sensor_set_pair_controller;        
+        SensorSetPairController sensor_set_pair_controller;
+        IMUSensor imu_sensor;
+
         SensorSet front_sensor;
         SensorSet back_sensor;
 
@@ -16,6 +17,10 @@ class MotorSetPairController {
         void move(int pow, double direction) {
             front.move(pow, direction);
             back.move(pow, direction);
+            clear();
+            drawTextFmt(0, 0, WHITE, "front: %d, %d", front.left_speed, front.right_speed);
+            drawTextFmt(0, 10, WHITE, "back: %d, %d", back.left_speed, back.right_speed);
+            flip();
         }
         
         void forward(int pow) {
@@ -28,9 +33,57 @@ class MotorSetPairController {
         }
 
         void run_until_black() {
-            double direction = sensor_set_pair_controller.get_direction();
-            move(20, direction);
-            while (front_sensor.get_normalised() < 0.9);
+            while (front_sensor.get_normalised() < 1.0) {
+                double direction = sensor_set_pair_controller.get_direction();
+                move(60, direction);
+                clear();
+                drawTextFmt(0, 0, WHITE, "%f", direction);
+                flip();
+            };
+            stop();
+            move(-20, 0.0);
+            delay(300);
             stop();
         }
+        
+        void run_until_white() {
+            while (front_sensor.get_normalised() > 0.5) {
+                double direction = sensor_set_pair_controller.get_direction();
+                move(60, direction);
+                clear();
+                drawTextFmt(0, 0, WHITE, "%f", direction);
+                flip();
+            };
+            stop();
+            move(-20, 0.0);
+            delay(300);
+            stop();
+        }
+
+        float norm180(float a) {
+            while (a > 180) a -= 360;
+            while (a < -180) a += 360;
+            return a;
+        }
+        
+        void rotate_to(float targetDeg) {
+            targetDeg = norm180(targetDeg);
+
+            imu_sensor.getYaw();
+            float current = norm180(imu_sensor.pvYaw);
+
+            // signed difference (e.g. +60 means turn left 60 degrees)
+            float diff = norm180(targetDeg - current);
+
+            // direction: left = -1, right = +1
+            float dir = (diff > 0) ? -1.0f : 1.0f;
+
+            while (fabs(norm180(imu_sensor.pvYaw - targetDeg)) > 3.0f) {
+                imu_sensor.getYaw();
+                move(60, dir);
+            }
+
+            stop();
+        }
+
 };

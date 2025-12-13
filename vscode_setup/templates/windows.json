@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "Arduino",
-            "compilerPath": "packages/INEX_STM32/tools/xpack-arm-none-eabi-gcc/10.3.1-2.3/bin/arm-none-eabi-g++",
+            "compilerPath": "packages/INEX_STM32/tools/xpack-arm-none-eabi-gcc/10.3.1-2.3/bin/arm-none-eabi-g++.exe",
             "compilerArgs": [
                 "-mcpu=cortex-m3",
                 "-mthumb",
@@ -12,12 +12,12 @@
                 "-ffunction-sections",
                 "-fdata-sections",
                 "-fno-threadsafe-statics",
-                "--param",
                 "-fno-rtti",
                 "-fno-exceptions",
-                "-fno-use-cxa-atexit"
+                "-fno-use-cxa-atexit",
+                "-ffreestanding"
             ],
-            "intelliSenseMode": "gcc-x64",
+            "intelliSenseMode": "gcc-arm",
             "includePath": [
                 "packages/INEX_STM32/hardware/stm32/2.4.0/cores/arduino/avr",
                 "packages/INEX_STM32/hardware/stm32/2.4.0/cores/arduino/stm32",

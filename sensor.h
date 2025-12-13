@@ -1,3 +1,4 @@
+#pragma once
 #include <POP32.h>
 
 struct Sensor {

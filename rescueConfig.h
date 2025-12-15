@@ -10,10 +10,10 @@ const MotorSet motorSets[2] = { {1, 2},   // Front
                                 {3, 4} }; // Back
 
 Sensor sensors[8] = {
-    {0, 587, 3367}, {1, 622, 3576},  // Front
-    {2, 661, 2574}, {3, 383, 2146},  // Back
-    {4, 504, 2046}, {5, 756, 3232},  // Left
-    {6, 539, 2295}, {7, 744, 2880}   // Right
+    {0, 590, 2645}, {1, 657, 3480},  // Front
+    {2, 469, 2215}, {3, 810, 3404},  // Back
+    {4, 546, 3106}, {5, 556, 2634},  // Left
+    {6, 424, 2173}, {7, 642, 2971}   // Right
 };
 
 SensorSet sensorSets[4] = { { &sensors[0], &sensors[1] },   // Front
@@ -23,7 +23,7 @@ SensorSet sensorSets[4] = { { &sensors[0], &sensors[1] },   // Front
 
 IMUSensor imu_sensor;
 SensorSetPairController sensor_controller = { &sensorSets[2], &sensorSets[3] };
-MotorSetPairController  motor_controller  = { sensor_controller, imu_sensor, sensorSets[1], sensorSets[2], motorSets[0], motorSets[1] };
+MotorSetPairController  motor_controller  = { sensor_controller, imu_sensor, sensorSets[0], sensorSets[1], motorSets[0], motorSets[1] };
 
 
 #ifdef DEBUG
@@ -70,12 +70,20 @@ void cali_sensors() {
     }
 
     clear();
+    drawTextFmt(0, 0, WHITE, "Plug in USB to get value");
+    flip();
+    while (!SW_A());
+    while (SW_A());
+
+    clear();
     sensor_idx = 0;
     drawTextFmt(0, 0, WHITE, "White");
     for (SensorSet &sensor_set: sensorSets) {
         drawTextFmt(0, 10+(10*sensor_idx), WHITE, "%d        %d", sensor_set.left->whiteValue, sensor_set.right->whiteValue);
+        SerialUSB.printf("%d        %d\n", sensor_set.left->whiteValue, sensor_set.right->whiteValue);
         sensor_idx++;
     }
+    SerialUSB.print("\n");
     flip();
     while (!SW_A());
     while (SW_A());
@@ -85,6 +93,7 @@ void cali_sensors() {
     drawTextFmt(0, 0, WHITE, "Black");
     for (SensorSet &sensor_set: sensorSets) {
         drawTextFmt(0, 10+(10*sensor_idx), WHITE, "%d        %d", sensor_set.left->blackValue, sensor_set.right->blackValue);
+        SerialUSB.printf("%d        %d\n", sensor_set.left->blackValue, sensor_set.right->blackValue);
         sensor_idx++;
     }
     flip();

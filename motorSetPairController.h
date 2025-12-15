@@ -37,14 +37,22 @@ class MotorSetPairController {
         void run_until_black(bool back_up = true) {
             SensorSet* sensor = backward ? &back_sensor : &front_sensor;
 
-            while (sensor->left->get_normalised() < 0.5 && sensor->right->get_normalised() < 0.5) {
-                double direction = sensor_set_pair_controller.get_direction();
+            while (sensor->left->get_normalised() < 0.9 && sensor->right->get_normalised() < 0.9) {
+                double ln = sensor_set_pair_controller.left->left->get_normalised();
+                double rn = sensor_set_pair_controller.right->left->get_normalised();
+                double direction = 0.0;
+
+                if (!(ln < 0.9 && rn < 0.9)) {
+                    double dir = (ln - 0.5) - (rn - 0.5);
+                    direction = constrain(dir * 2.0, -1.0, 1.0);
+                }
+                
                 move(40, -direction);
             };
             align(!backward);
             if (back_up) {
                 move(-20, 0.0);
-                delay(300);
+                delay(400);
                 stop();
             }
         }
@@ -156,7 +164,7 @@ class MotorSetPairController {
                 // left = -1, right = +1
                 float dir = (error > 0) ? 1.0f : -1.0f;
             
-                move(50, dir);
+                move(57, dir);
             }
         
             stop();

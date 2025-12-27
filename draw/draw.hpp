@@ -25,6 +25,8 @@ static uint8_t txbuf[13 + 1024] = {
     0x40
 };
 
+int last_frame_ms = 0;
+
 void OLED_DMA_Init() {
     I2C_HandleTypeDef *hi2c_oled = Wire.getHandle();
     
@@ -54,6 +56,7 @@ extern "C" void DMA1_Channel6_IRQHandler(void) {
 extern "C" void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
     if (hi2c == Wire.getHandle()) {
         oled_dma_busy = false;
+        last_frame_ms = millis();
     }
 }
 
@@ -247,5 +250,22 @@ void drawChecker(int tileSize, int offsetX, int offsetY, uint8_t color1, uint8_t
                 case INVERSE: screen[index] ^=  mask; break;
             }
         }
+    }
+}
+
+inline void drawBitmap(
+    int dstX,
+    int dstPage,
+    int width,
+    int pages,
+    const uint8_t* bitmap
+) {
+    if (dstX < 0 || dstX + width > W) return;
+    if (dstPage < 0 || dstPage + pages > (H / 8)) return;
+
+    for (int p = 0; p < pages; p++) {
+        uint8_t* dst = &screen[(dstPage + p) * W + dstX];
+        const uint8_t* src = &bitmap[p * width];
+        memcpy(dst, src, width);
     }
 }

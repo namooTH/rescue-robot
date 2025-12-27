@@ -14,11 +14,11 @@ struct Sensor {
         blackValue = get_value(); 
     }
 
-    int get_value() {
+    inline int get_value() {
         return analog(channel);
     }
 
-    double get_normalised() {
+    inline double get_normalised() {
         return (double) (get_value() - whiteValue) / (double) (blackValue - whiteValue); 
     }
 };

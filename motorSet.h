@@ -1,5 +1,6 @@
 #pragma once
 #include <POP32.h>
+#include <rawMotor.h>
 
 struct MotorSet {
     const int left;
@@ -7,9 +8,9 @@ struct MotorSet {
 
     int left_speed = 0;
     int right_speed = 0;
-
-    const int LEFT_POLARITY  = 1;
-    const int RIGHT_POLARITY = 1;
+    
+    int left_offset = 0;
+    int right_offset = 0;
 
     void move(int pow, double direction) {
         direction = constrain(direction, -1.0, 1.0);
@@ -22,8 +23,8 @@ struct MotorSet {
         left_speed  = constrain(left_speed,  -maxPow, maxPow);
         right_speed = constrain(right_speed, -maxPow, maxPow);
 
-        motor(left, left_speed);
-        motor(right, right_speed);
+        raw_motor(left, left_speed + left_offset);
+        raw_motor(right, right_speed + right_offset);
     }
 
 

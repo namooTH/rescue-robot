@@ -6,14 +6,14 @@
 #include <draw/draw.hpp>
 #include <IMUSensor.h>
 
-const MotorSet motorSets[2] = { {1, 2},   // Front
-                                {3, 4} }; // Back
+const MotorSet motorSets[2] = { {1, 2, 0, 0, 0, 3},   // Front
+                                {3, 4, 0, 0, 0, 3}};  // Back
 
 Sensor sensors[8] = {
-    {0, 590, 2645}, {1, 657, 3480},  // Front
-    {2, 469, 2215}, {3, 810, 3404},  // Back
-    {4, 546, 3106}, {5, 556, 2634},  // Left
-    {6, 424, 2173}, {7, 642, 2971}   // Right
+    {0, 647, 2910}, {1, 466, 2408},  // Front
+    {2, 538, 3183}, {3, 566, 3746},  // Back
+    {4, 519, 3294}, {5, 298, 1852},  // Left
+    {6, 582, 2782}, {7, 363, 2117}   // Right
 };
 
 SensorSet sensorSets[4] = { { &sensors[0], &sensors[1] },   // Front
@@ -23,7 +23,7 @@ SensorSet sensorSets[4] = { { &sensors[0], &sensors[1] },   // Front
 
 IMUSensor imu_sensor;
 SensorSetPairController sensor_controller = { &sensorSets[2], &sensorSets[3] };
-MotorSetPairController  motor_controller  = { sensor_controller, imu_sensor, sensorSets[0], sensorSets[1], motorSets[0], motorSets[1] };
+MotorSetPairController  motor_controller  = { sensor_controller, &imu_sensor, sensorSets[0], sensorSets[1], motorSets[0], motorSets[1] };
 
 
 #ifdef DEBUG
@@ -103,7 +103,6 @@ void cali_sensors() {
 struct RescueInit {
     RescueInit() {
         imu_sensor.Init();
-        imu_sensor.getYaw();
     };
 };
 

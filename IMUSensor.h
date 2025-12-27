@@ -1,47 +1,49 @@
 #pragma once
 #include <POP32.h>
 
-struct pyYawDirections {
-    float up = 0.0f;
-    float down = -180.0f;
-    float left = 90.0f;
-    float right = -90.0f;
-};
-
 // ZX-IMU Sensor, for 'YAW' value, use Serial1 to communicate (static).
 // MUST use .Init() to initialize the sensor before use.
 struct IMUSensor{
-    pyYawDirections directions;
-    
-    float pvYaw = 99.0f; // Current yaw value
-    bool pvStatus = false; // Status of IMU sensor
+    double_t cYaw=0,cPitch=0,cRoll=0;
+    bool status = false;
 
     uint8_t rxBuf[8];
+
+    void Reset(){
+        ZeroYaw();
+        ToggleAutoMode();
+    }
 
     // Initialize the IMU sensor with 115200 baud rate.
     // WARNING: This function will take about 3050ms to complete.
     void Init(){
         Serial1.begin(115200);
-        delay(1000);
-        zeroYaw();
+        while(!Serial1.availableForWrite()){
+            beep();
+            delay(10);
+        }
+        Reset();
+    }
+    
+    void ToggleAutoMode(){
+        Serial1.write(0XA5);Serial1.write(0X52);
+        delay(60);
+    }
 
-        // Set Mode to 'Automatic'
-        Serial1.write(0xA5);
-        Serial1.write(0x52);
-        delay(100);
+    void ToggleQueryMode(){
+        Serial1.write(0XA5);Serial1.write(0X51);
+        delay(60);
     }
 
     // Set Pitch, Roll and Yaw to zero
     // WARNING: delay upto 1950ms
-    inline void zeroYaw() {
-        // Set Pitch & Roll to zero
-        Serial1.write(0xA5);
-        Serial1.write(0x54);
-        delay(1800);       
-        // Set Yaw to zero
-        Serial1.write(0xA5);
-        Serial1.write(0x55);
-        delay(150);
+    inline void ZeroYaw() {
+        //Zero Pitch
+        Serial1.write(0XA5);Serial1.write(0X54); 
+        delay(60);
+        //Zero Yaw
+        Serial1.write(0XA5);Serial1.write(0X55);
+        delay(60);
     }
 
     // Repeated yaw-zero until near zero
@@ -49,12 +51,12 @@ struct IMUSensor{
     // 'precision' : the precision to stop zeroing, default is 0.02f
     // 'time_out' : the maximum time to wait for zeroing, default is 10'000ms
     void AutoZero(float_t precision = 0.02f,int32_t time_out = 10000) {
-        zeroYaw();
+        ZeroYaw();
         unsigned long start = HAL_GetTick();
         while (true) {
-            if (fetchIMU() && fabs(pvYaw) <= precision) break;
+            if (fetchIMU() && fabs(cYaw) <= precision) break;
             if (HAL_GetTick() - start > time_out) {
-                zeroYaw();
+                ZeroYaw();
                 break;
             }
         }
@@ -63,21 +65,23 @@ struct IMUSensor{
     // Fetch data from IMU sensor, return true if successful
     // pvYaw will be updated with the latest yaw value
     inline bool fetchIMU() {
-        static uint8_t idx = 0;
-        while (Serial1.available()) {
-            uint8_t b = Serial1.read();
-            if (idx == 0 && b != 0xAA) continue;
-            rxBuf[idx++] = b;
-            if (idx == 8) {
-                idx = 0;
-                if (rxBuf[7] == 0x55) {
-                    pvYaw = (int16_t)(rxBuf[1] << 8 | rxBuf[2]) / 100.0f;
-                    pvStatus = true;
-                    return true;
-                }
+        static int8_t idx = 0;
+        while (Serial1.available()){
+            uint8_t byte = Serial1.read();
+            if (idx == 0 && byte != 0xAA) continue;
+                rxBuf[idx++] = byte;
+                if (idx == 8) {
+                    idx = 0;
+                    if (rxBuf[7] == 0x55) {
+                        cYaw = (int16_t)(rxBuf[1] << 8 | rxBuf[2]) / 100.0f;
+                        cPitch = (int16_t)(rxBuf[3] << 8 | rxBuf[4]) / 100.0f;
+                        cRoll = (int16_t)(rxBuf[5] << 8 | rxBuf[6]) / 100.0f;
+                        status = true;
+                        return true;
+                    }
             }
         }
-        pvStatus = false;
+        status = false;
         return false;
     }
 
@@ -86,9 +90,9 @@ struct IMUSensor{
     // 'do_fetch' : true - fetching new data, flase - using previous value
     inline float_t getYaw(bool do_fetch = true){
         if (do_fetch) {
-            if (!fetchIMU()) return pvYaw; // If fetch failed, return previous value
+            if (!fetchIMU()) return cYaw; // If fetch failed, return previous value
         }
-        return pvYaw;
+        return cYaw;
     }
 
     // Log the current yaw value, status of IMU sensor, to OLED screen. 
@@ -98,8 +102,8 @@ struct IMUSensor{
     inline void LogYaw(bool doBeep = false){
         if(doBeep)beep();
         oled.clear();
-        oled.text(0,0,"Yaw=%f", pvYaw);
-        oled.text(1,0,"Status: %s", pvStatus ? "OK" : "Error");
+        oled.text(0,0,"Yaw=%f", cYaw);
+        oled.text(1,0,"Status: %s", status ? "OK" : "Error");
         oled.show();
     }
         

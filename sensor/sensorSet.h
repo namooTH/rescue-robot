@@ -1,6 +1,6 @@
 #pragma once
 #include <POP32.h>
-#include <sensor.h>
+#include "sensor.h"
 
 struct SensorSet {
     Sensor *left;

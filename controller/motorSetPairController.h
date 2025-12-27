@@ -1,8 +1,8 @@
 #pragma once
-#include <motorSet.h>
-#include <sensorSetPairController.h>
-#include <IMUSensor.h>
-#include <PID.h>
+#include "../motor/motorSet.h"
+#include "sensorSetPairController.h"
+#include "../sensor/IMUSensor.h"
+#include "../utils/PID.h"
 
 class MotorSetPairController {
     public:
@@ -11,15 +11,18 @@ class MotorSetPairController {
 
         SensorSet front_sensor;
         SensorSet back_sensor;
-
+        
         MotorSet front;
         MotorSet back;
 
+        SensorSet far_front_sensor = {sensor_set_pair_controller.left->left, sensor_set_pair_controller.right->left};
+        SensorSet far_back_sensor = {sensor_set_pair_controller.left->right, sensor_set_pair_controller.right->right};
+        
         bool backward = false;
 
-        void move(int pow, double direction) {
-            front.move(pow, direction);
-            back.move(pow, direction);
+        void move(int pow, double direction, bool use_offset = true) {
+            front.move(pow, direction, use_offset);
+            back.move(pow, direction, use_offset);
             // clear();
             // drawTextFmt(0, 0, WHITE, "front: %d, %d", front.left_speed, front.right_speed);
             // drawTextFmt(0, 10, WHITE, "back: %d, %d", back.left_speed, back.right_speed);
@@ -37,13 +40,15 @@ class MotorSetPairController {
 
         void run_until_black(float boost = 1.0f, bool back_up = true, int pow = 178) {
             SensorSet* sensor = backward ? &back_sensor : &front_sensor;
+
+
             int speed = pow;
 
             int now = millis();
             int start = now;
             int lastTime = now;
             
-            int boostTime = 200.0f * fabs(boost);
+            int boostTime = 270.0f * fabs(boost);
 
             while (sensor->left->get_normalised() < 0.9 && sensor->right->get_normalised() < 0.9) {
                 now = millis();
@@ -76,7 +81,7 @@ class MotorSetPairController {
             
             if (back_up) {
                 move(-102, 0.0);
-                delay(100);
+                delay(130);
                 stop();
             }
         }
@@ -138,51 +143,76 @@ class MotorSetPairController {
             return (int)mag;
         }
         
-        PID alignPID = {4.0, 0.0, 0.2};
+        PID alignPID = {4.0, 0.0, 0.25};
         
         void align(bool backward = false) {
             alignPID.reset();
 
             SensorSet* sensor = backward ? &front_sensor : &back_sensor;
-        
+            SensorSet* farSensor = backward ? &far_front_sensor : &far_back_sensor;
+
+            SensorSet* activeSensor = sensor;
+
             int SEARCH_SPEED = backward ? -100 : 100;
             int ALIGN_DIR  = backward ? -1 : 1;
-            const double BLACK_MIN = 0.5;   // bar detection threshold
-            const double CENTER_EPS = 0.1;  // balance tolerance
+            const double BLACK_MIN = 0.5;    // bar detection threshold
+            const double CENTER_EPS = 0.07;  // balance tolerance
         
-            while (sensor->get_normalised() >= BLACK_MIN) {
-                move(SEARCH_SPEED, 0.0);
-            }
-            while (sensor->get_normalised() < BLACK_MIN) {
-                move(-SEARCH_SPEED, 0.0);
-            }
-            stop();
+            for (int i = 0; i < 2; i++) {
+                if (i == 0) activeSensor = sensor;
+                else activeSensor = farSensor;
 
-            int now = millis();
-            int start = now;
-            int lastTime = now;
-            
-            while (now - start < 2000) {
+                bool unable = false;
+
                 int now = millis();
-                float dt = (now - lastTime) / 1000.0f;
-                lastTime = now;
-                if (dt <= 0) dt = 0.001f;
-                
-                double strength = sensor->get_normalised();
-                double strength_error = 1.0 - strength;
-                double dir = sensor->get_direction();
+                int start = now;
+                int lastTime = now;
 
-                float pidOut = alignPID.update(strength_error, dt);
-                
-                if (fabs(dir) < CENTER_EPS) {
-                    break;
+                while (activeSensor->get_normalised() >= BLACK_MIN) {
+                    if (now - start > 200) {
+                        unable = true;
+                        break;   
+                    }
+                    now = millis();
+                    move(SEARCH_SPEED, 0.0);
+                    unable = false;
                 }
-               
-                int fb = (strength > BLACK_MIN) ? ALIGN_DIR * speedFromPID(pidOut, 160, 200) : ALIGN_DIR * -speedFromPID(pidOut, 160, 200);
-            
-                move(fb, -dir);
+                while (activeSensor->get_normalised() < BLACK_MIN) {
+                    if (now - start > 200) {
+                        unable = true;
+                        break;
+                    }
+                    now = millis();
+                    move(-SEARCH_SPEED, 0.0);
+                    unable = false;
+                }
+                stop();
+
+                now = millis();
+                
+                while (now - start < 2000 || !unable) {
+                    now = millis();
+
+                    float dt = (now - lastTime) / 1000.0f;
+                    lastTime = now;
+                    if (dt <= 0) dt = 0.001f;
+                    
+                    double strength = activeSensor->get_normalised();
+                    double strength_error = 1.0 - strength;
+                    double dir = activeSensor->get_direction();
+
+                    float pidOut = alignPID.update(strength_error, dt);
+                    
+                    if (fabs(dir) < CENTER_EPS) {
+                        break;
+                    }
+                
+                    int fb = (strength > BLACK_MIN) ? ALIGN_DIR * speedFromPID(pidOut, 160, 200) : ALIGN_DIR * -speedFromPID(pidOut, 160, 200);
+                
+                    move(fb, -dir, false);
+                }
             }
-            
+
             stop();
             resetIMUToLastPerfect();
         }
@@ -269,7 +299,7 @@ class MotorSetPairController {
             
                 if (fabs(error) < 0.15f) break;
                 
-                move(speedFromPID(pidOut), dir);
+                move(speedFromPID(pidOut), dir, false);
             }
         
             stop();

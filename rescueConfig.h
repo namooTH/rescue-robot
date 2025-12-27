@@ -1,13 +1,13 @@
 #define RESCUE_CONFIG
 
 #include <POP32.h>
-#include <sensorSetPairController.h>
-#include <motorSetPairController.h>
-#include <draw/draw.hpp>
-#include <IMUSensor.h>
+#include "controller/sensorSetPairController.h"
+#include "controller/motorSetPairController.h"
+#include "draw/draw.hpp"
+#include "sensor/IMUSensor.h"
 
-const MotorSet motorSets[2] = { {1, 2, 0, 0, 0, 3},   // Front
-                                {3, 4, 0, 0, 0, 3}};  // Back
+const MotorSet motorSets[2] = { {1, 2, 0, 0, 0, 6},   // Front
+                                {3, 4, 0, 0, 0, 6}};  // Back
 
 Sensor sensors[8] = {
     {0, 647, 2910}, {1, 466, 2408},  // Front

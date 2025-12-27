@@ -1,5 +1,5 @@
 #pragma once
-#include <sensorSet.h>
+#include "../sensor/sensorSet.h"
 
 class SensorSetPairController {
     public:

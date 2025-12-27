@@ -1,8 +1,8 @@
 #define DEBUG
-#include <draw/draw.hpp>
-#include <draw/menu.hpp>
-#include <rescueConfig.h>
-#include <furelise.h>
+#include "draw/draw.hpp"
+#include "draw/menu.hpp"
+#include "rescueConfig.h"
+#include "furelise.h"
 
 void setup() {
     asm(".global _printf_float");
@@ -46,9 +46,9 @@ void control_mode() {
 
 void deploy_dice() {
     servo(1, 55);
-    delay(400);
+    delay(300);
     servo(1, 180);
-    delay(400);
+    delay(300);
     servo(1, 150);
 }
 
@@ -78,6 +78,7 @@ void run() {
     motor_controller.rotate_to(0.0);
     motor_controller.run_until_black();
     motor_controller.rotate_to(90.0);
+    motor_controller.align();
     motor_controller.run_until_black(0.0, false);
     deploy_dice();
     motor_controller.run(-0.75);
@@ -85,7 +86,7 @@ void run() {
     motor_controller.rotate_to(-90.0);
     motor_controller.run_until_black();
     motor_controller.rotate_to(180.0);
-    motor_controller.run_until_black();
+    motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(90.0);
     motor_controller.align();
     motor_controller.run(1.0);
@@ -117,8 +118,9 @@ void run() {
     motor_controller.run_until_black();
     motor_controller.rotate_to(180);
     motor_controller.run_until_black();
+    motor_controller.run(0.25);
     deploy_dice(); //red
-    motor_controller.run(-0.5);
+    motor_controller.run(-0.75);
     motor_controller.rotate_to(-90);
     motor_controller.align();
     motor_controller.run_until_black();
@@ -129,8 +131,8 @@ void run() {
     motor_controller.run_until_black();
     motor_controller.rotate_to(180);
     motor_controller.run_until_black();
-    motor_controller.run(1);
-    motor_controller.run_until_black();
+    motor_controller.run_until_white();
+    motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(90);
     motor_controller.align();
     motor_controller.run_until_black();
@@ -140,14 +142,13 @@ void run() {
     motor_controller.rotate_to(0);
     motor_controller.align();
     motor_controller.run_until_black();
-    motor_controller.run(1);
-    motor_controller.align();
+    motor_controller.run_until_white();
     motor_controller.run_until_black();
     motor_controller.rotate_to(90);
     motor_controller.align();
     motor_controller.run(2.0);
     motor_controller.run_until_black(0.0, true, 100);
-    motor_controller.run(-0.25);
+    motor_controller.run(-0.5);
     deploy_dice();
     flag();
     beep();

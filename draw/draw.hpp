@@ -1,7 +1,7 @@
 #pragma once
 #include <POP32.h>
-#include <utils/access_private.hpp>
-#include <draw/ascii-font/ascii-font.hpp>
+#include "../utils/access_private.hpp"
+#include "ascii-font/ascii-font.hpp"
 
 #define W 128
 #define H 64

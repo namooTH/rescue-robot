@@ -167,7 +167,7 @@ class MotorSetPairController {
                 float dt = (now - lastTime) / 1000.0f;
                 lastTime = now;
                 if (dt <= 0) dt = 0.001f;
-
+                
                 double strength = sensor->get_normalised();
                 double strength_error = 1.0 - strength;
                 double dir = sensor->get_direction();
@@ -178,7 +178,7 @@ class MotorSetPairController {
                     break;
                 }
                
-                int fb = (strength > BLACK_MIN) ? ALIGN_DIR * speedFromPID(pidOut, 120, 200) : ALIGN_DIR * -speedFromPID(pidOut, 120, 200);
+                int fb = (strength > BLACK_MIN) ? ALIGN_DIR * speedFromPID(pidOut, 160, 200) : ALIGN_DIR * -speedFromPID(pidOut, 160, 200);
             
                 move(fb, -dir);
             }

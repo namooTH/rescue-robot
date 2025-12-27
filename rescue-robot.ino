@@ -46,9 +46,9 @@ void control_mode() {
 
 void deploy_dice() {
     servo(1, 55);
-    delay(200);
+    delay(400);
     servo(1, 180);
-    delay(200);
+    delay(400);
     servo(1, 150);
 }
 

@@ -23,7 +23,14 @@ SensorSet sensorSets[4] = { { &sensors[0], &sensors[1] },   // Front
 
 IMUSensor imu_sensor;
 SensorSetPairController sensor_controller = { &sensorSets[2], &sensorSets[3] };
-MotorSetPairController  motor_controller  = { sensor_controller, &imu_sensor, sensorSets[0], sensorSets[1], motorSets[0], motorSets[1] };
+MotorSetPairController  motor_controller  = { sensor_controller,
+                                              &imu_sensor,
+                                              
+                                              sensorSets[0],
+                                              sensorSets[1],
+  
+                                              motorSets[0], 
+                                              motorSets[1] };
 
 
 #ifdef DEBUG

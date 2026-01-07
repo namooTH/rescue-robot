@@ -6,14 +6,14 @@
 #include "draw/draw.hpp"
 #include "sensor/IMUSensor.h"
 
-const MotorSet motorSets[2] = { {1, 2, 0, 0, 0, 6},   // Front
-                                {3, 4, 0, 0, 0, 6}};  // Back
+const MotorSet motorSets[2] = { {3, 1, 0, 0, 0, 6},   // Front
+                                {4, 2, 0, 0, 0, 6}};  // Back
 
 Sensor sensors[8] = {
-    {0, 560, 2998}, {1, 466, 2319},  // Front
-    {2, 574, 3301}, {3, 508, 3719},  // Back
-    {4, 509, 3591}, {5, 308, 2086},  // Left
-    {6, 566, 2658}, {7, 376, 1991}   // Right
+    {0, 536, 3190}, {1, 896, 3780},  // Front
+    {2, 214, 1469}, {3, 197, 1502},  // Back
+    {4, 269, 1754}, {5, 674, 3531},  // Left
+    {6, 548, 2989}, {7, 319, 1974}   // Right
 };
 
 SensorSet sensorSets[4] = { { &sensors[0], &sensors[1] },   // Front
@@ -103,7 +103,7 @@ void cali_sensors() {
         SerialUSB.printf("%d        %d\n", sensor_set.left->blackValue, sensor_set.right->blackValue);
         sensor_idx++;
     }
-    flip();
+    flip(); 
     while (!SW_A());
 }
 

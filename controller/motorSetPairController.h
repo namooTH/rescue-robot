@@ -54,7 +54,7 @@ class MotorSetPairController {
             stop();
         }
 
-        void run_until_black(float boost = 1.0f, bool back_up = true, bool backward = false, int pow = 178) {
+        void run_until_black(float boost = 1.0f, bool back_up = true, bool backward = false, int pow = 140, float black = 0.9) {
             int DIR  = backward ? -1 : 1;
             SensorSet* sensor = backward ? &back_sensor : &front_sensor;
             
@@ -66,7 +66,7 @@ class MotorSetPairController {
             
             int boostTime = 270.0f * fabs(boost);
 
-            while (sensor->left->get_normalised() < 0.9 && sensor->right->get_normalised() < 0.9) {
+            while (sensor->left->get_normalised() < black && sensor->right->get_normalised() < black) {
                 now = millis();
                 float dt = (now - lastTime) / 1000.0f;
                 lastTime = now;
@@ -104,13 +104,14 @@ class MotorSetPairController {
         }
         
         void run_until_white() {
-            SensorSet* sensor = nullptr;
-            double (SensorSet::*sensor_func)() = &SensorSet::get_normalised;
-            sensor = backward ? &back_sensor : &front_sensor;
+            SensorSet* sensor = backward ? &back_sensor : &front_sensor;
 
             while (sensor->get_normalised() > 0.1) {
                 double direction = sensor_set_pair_controller.get_direction();
-                move(127, direction);
+                if (fabs(direction) < 0.2) {
+                    direction = 0.0f;
+                }; 
+                move(130, direction);
             };
         }
 
@@ -201,7 +202,7 @@ class MotorSetPairController {
                     }
                 
                     int fb = (strength > BLACK_MIN) ? ALIGN_DIR * 100 : ALIGN_DIR * -100;
-                
+
                     move(fb, -dir);
                 }
             }
@@ -227,9 +228,9 @@ class MotorSetPairController {
             
             float absError = fabs(error);
             if (absError >= 100) {
-                yawPID = {4.0, 0.0, 0.5};
+                yawPID = {1.25, 0.0, 0.0};
             } else {
-                yawPID = {3.5, 0.0, 4.0};
+                yawPID = {2.0, 0.0, 0.0};
             }
             
             yawPID.reset();
@@ -237,17 +238,20 @@ class MotorSetPairController {
             int lastTime = millis();
             
             while (true) {
+                clear();
                 int now = millis();
                 float dt = (now - lastTime) / 1000.0f;
                 lastTime = now;
                 if (dt <= 0) dt = 0.001f;
 
-                error = norm180(targetDeg - getWorldYaw());
+                error = targetDeg - getWorldYaw();
                 float pidOut = yawPID.update(error, dt);
 
                 dir = (error > 0) ? 1.0f : -1.0f;
             
-                if (fabs(error) < 0.1f) break;
+                if (fabs(error) < 0.2f) break;
+                drawTextFmt(0,0,WHITE,"DIR: %f", dir);
+                flip();
                 
                 move(speedFromPID(pidOut), dir);
             }
@@ -258,13 +262,22 @@ class MotorSetPairController {
             resetIMUKeepWorld();
         }
 
-    private:
+        void resetIMU() {
+            imu_sensor->Reset();
+            worldYawOffset = 0.0f;
+            lastPerfectYaw = 0.0f;
+            lastYaw = 0.0f;
+            yawInit = false;
+        }
+
+        
+        private:
         float worldYawOffset = 0.0f;
         float lastPerfectYaw = 0.0f;
         float continuousYaw = 0.0f;
         float lastYaw = 0.0f;
         bool yawInit = false;
-
+        
         float unwrapYaw(float rawYaw) {
             if (!yawInit) {
                 lastYaw = rawYaw;
@@ -274,26 +287,26 @@ class MotorSetPairController {
             }
         
             float delta = rawYaw - lastYaw;
-        
+            
             // detect wrap (your IMU jumps ~370 deg)
             if (delta > 180)  delta -= 360;
             if (delta < -180) delta += 360;
-        
+            
             continuousYaw += delta;
             lastYaw = rawYaw;
             
             return continuousYaw;
         }
-
-        int speedFromPID(float pidOut, int stall_speed = 110, int speed_max = 250) {
+        
+        int speedFromPID(float pidOut, int stall_speed = 130, int speed_max = 250) {
             float mag = fabs(pidOut);
             
             if (mag < stall_speed)
-                mag = stall_speed;
-        
-                if (mag > speed_max)
-                mag = speed_max;
-                
+            mag = stall_speed;
+            
+            if (mag > speed_max)
+            mag = speed_max;
+            
             return (int)mag;
         }
         

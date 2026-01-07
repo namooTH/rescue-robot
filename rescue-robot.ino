@@ -71,95 +71,79 @@ void run_auto() {
 
 void run() {
     motor_controller.run_until_white();
-    motor_controller.run_until_black();
+    motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(-90.0);
-    motor_controller.align();
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(0.0);
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(90.0);
-    motor_controller.align();
-    motor_controller.run_until_black(0.0, false);
-    deploy_dice();
-    motor_controller.run(-0.75);
+    motor_controller.run_until_black(0.0);
 
+    motor_controller.rotate_to(0.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.rotate_to(90.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.rotate_to(0.0);
+    motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(-90.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.run(-0.3);
+    deploy_dice(); //yellow
+    
+    motor_controller.run_until_black(0.0, true, true);
+    motor_controller.rotate_to(180.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.rotate_to(-90.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.rotate_to(180.0);
+    motor_controller.run_until_black(0.0, true, false, 100);
+    motor_controller.run(-0.1);
+    motor_controller.rotate_to(90.0);
+    motor_controller.run_until_black(0.0); //checkpoint 1
+    
+    motor_controller.run_until_black(0.0, true, true, 150);
+    motor_controller.rotate_to(0.0);
+    motor_controller.run_until_black(0, true, false, 100);
+    motor_controller.rotate_to(-90.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.rotate_to(180.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.run(1);
+    motor_controller.run_until_black(0.0);
+    motor_controller.run(-0.2);
+    deploy_dice(); // green
+    
+    motor_controller.run(-0.6);
+    motor_controller.rotate_to(-90.0);
+    motor_controller.run_until_black(0.0, true, false, 140);
+    motor_controller.rotate_to(0.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.rotate_to(-90.0);
+    motor_controller.align();
     motor_controller.run_until_black();
+    motor_controller.rotate_to(180.0);
+    motor_controller.run_until_black(0.0); //checkpoint 2
+    
+    motor_controller.run_until_black(0.0, true, true);
+    motor_controller.rotate_to(90.0);
+    motor_controller.align();
+    motor_controller.run(1.2);
+    motor_controller.rotate_to(180.0);
+    motor_controller.run_until_black(0.0);
+    deploy_dice(); // red
+    
+    motor_controller.run_until_black(0.0, true, true);
+    motor_controller.rotate_to(90.0);
+    motor_controller.run(1.0);
+    motor_controller.rotate_to(180.0);
+    motor_controller.run_until_black(0.0);
+    motor_controller.rotate_to(-90.0);
+    motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(180.0);
     motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(90.0);
-    motor_controller.align();
-    motor_controller.run(1.0);
-    motor_controller.rotate_to(180.0); //bridge
-    motor_controller.align();
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(-90.0);
-    motor_controller.align();
-    motor_controller.run_until_black(); //off bridge
-    motor_controller.rotate_to(0);
-    motor_controller.align();
-    motor_controller.run(1.0);
-    motor_controller.rotate_to(90);
-    motor_controller.run_until_black(0.0, true, 140);//checkpoint
-    motor_controller.rotate_to(-90);
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(0);
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(-90);
-    motor_controller.align();
-    motor_controller.run(1);
-    motor_controller.rotate_to(180.0);
-    motor_controller.align();
-    motor_controller.run_until_black(0.0); //checkpoint
-    motor_controller.rotate_to(0);
-    motor_controller.align();
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(-90);
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(180);
-    motor_controller.run_until_black();
-    motor_controller.run(0.25);
-    deploy_dice(); //red
-    motor_controller.run(-0.75);
-    motor_controller.rotate_to(-90);
-    motor_controller.align();
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(0);
-    motor_controller.align();
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(-90);
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(180);
-    motor_controller.run_until_black();
-    motor_controller.run_until_white();
     motor_controller.run_until_black(0.0);
-    motor_controller.rotate_to(90);
-    motor_controller.align();
-    motor_controller.run_until_black();
-    deploy_dice(); //blue
-    motor_controller.rotate_to(-90);
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(0);
-    motor_controller.align();
-    motor_controller.run_until_black();
-    motor_controller.run_until_white();
-    motor_controller.run_until_black();
-    motor_controller.rotate_to(90);
-    motor_controller.align();
-    motor_controller.run(2.0);
-    motor_controller.run_until_black(0.0, true, 100);
-    motor_controller.run(-0.5);
     deploy_dice();
     flag();
-    beep();
-    beep();
-    beep();
-    beep();
-    beep();
-    beep();
-    beep();
-    play_fur_elise();
-}
+    
+    motor_controller.stop();
+}   
 
 void test_motor() {
     while (1) {
@@ -190,8 +174,9 @@ Menu tests = { {
     {"Test Rotate 90", [](){motor_controller.imu_sensor->Reset(); motor_controller.rotate_to(-90.0);}},
     {"Test Rotate 180", [](){motor_controller.imu_sensor->Reset(); motor_controller.rotate_to(180.0);}},
     {"Check Front", [](){motor_controller.check_front();}},
-    {"Run Until Black", [](){motor_controller.run_until_black();}}
-} };
+    {"Run Until Black", [](){motor_controller.run_until_black();}},
+    {"Run Until Black Backward", [](){motor_controller.run_until_black(0.0, true, true);}}
+}};
 
 Menu menu = { {
     {"Run", run},

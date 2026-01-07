@@ -54,9 +54,10 @@ class MotorSetPairController {
             stop();
         }
 
-        void run_until_black(float boost = 1.0f, bool back_up = true, int pow = 178) {
+        void run_until_black(float boost = 1.0f, bool back_up = true, bool backward = false, int pow = 178) {
+            int DIR  = backward ? -1 : 1;
             SensorSet* sensor = backward ? &back_sensor : &front_sensor;
-
+            
             int speed = pow;
 
             int now = millis();
@@ -75,19 +76,20 @@ class MotorSetPairController {
                     speed = lerp(230.0, (double) pow, constrain((now - start) / boostTime, 0.0, 1.0));
                 }
 
-                double ln = sensor_set_pair_controller.left->left->get_normalised();
-                double rn = sensor_set_pair_controller.right->left->get_normalised();
                 double direction = 0.0;
+
+                double ln = backward ? sensor_set_pair_controller.left->right->get_normalised() : sensor_set_pair_controller.left->left->get_normalised();
+                double rn = backward ? sensor_set_pair_controller.right->right->get_normalised() : sensor_set_pair_controller.right->left->get_normalised();
 
                 if (!(ln < 0.9 && rn < 0.9)) {
                     double dir = ln - rn;
                     direction = constrain(dir, -1.0, 1.0);
                 }
                 
-                move(speed, -direction);
+                move(DIR*speed, -direction);
             };
 
-            move(-pow, 0.0);
+            move(DIR*-pow, 0.0);
             delay(200);
             stop();
 
@@ -95,7 +97,7 @@ class MotorSetPairController {
             align(!backward);
             
             if (back_up) {
-                move(-102, 0.0);
+                move(DIR*-102, 0.0);
                 delay(130);
                 stop();
             }
@@ -137,11 +139,9 @@ class MotorSetPairController {
             return found;
         }
 
-        PID alignPID = {4.0, 0.0, 0.25};
+        PID alignPID = {4.0, 0.0, 0.4};
         
         void align(bool backward = false) {
-            alignPID.reset();
-
             SensorSet* nearSensor = backward ? &front_sensor : &back_sensor;
             SensorSet* farSensor = backward ? &far_front_sensor : &far_back_sensor;
 
@@ -150,7 +150,7 @@ class MotorSetPairController {
             int SEARCH_SPEED = backward ? -100 : 100;
             int ALIGN_DIR  = backward ? -1 : 1;
             const double BLACK_MIN = 0.5;    // bar detection threshold
-            const double CENTER_EPS = 0.07;  // balance tolerance
+            const double CENTER_EPS = 0.1;  // balance tolerance
         
             for (SensorSet* sensor : sensors) {
                 bool unable = false;
@@ -179,6 +179,8 @@ class MotorSetPairController {
                 }
                 stop();
 
+                alignPID.reset();
+
                 now = millis();
                 
                 while (now - start < 2000 && !unable) {
@@ -198,9 +200,9 @@ class MotorSetPairController {
                         break;
                     }
                 
-                    int fb = (strength > BLACK_MIN) ? ALIGN_DIR * speedFromPID(pidOut, 160, 200) : ALIGN_DIR * -speedFromPID(pidOut, 160, 200);
+                    int fb = (strength > BLACK_MIN) ? ALIGN_DIR * 100 : ALIGN_DIR * -100;
                 
-                    move(fb, -dir, false);
+                    move(fb, -dir);
                 }
             }
 
@@ -227,7 +229,7 @@ class MotorSetPairController {
             if (absError >= 100) {
                 yawPID = {4.0, 0.0, 0.5};
             } else {
-                yawPID = {4.0, 0.0, 1.0};
+                yawPID = {3.5, 0.0, 4.0};
             }
             
             yawPID.reset();
@@ -245,9 +247,9 @@ class MotorSetPairController {
 
                 dir = (error > 0) ? 1.0f : -1.0f;
             
-                if (fabs(error) < 0.15f) break;
+                if (fabs(error) < 0.1f) break;
                 
-                move(speedFromPID(pidOut), dir, false);
+                move(speedFromPID(pidOut), dir);
             }
         
             stop();
@@ -283,7 +285,7 @@ class MotorSetPairController {
             return continuousYaw;
         }
 
-        int speedFromPID(float pidOut, int stall_speed = 120, int speed_max = 250) {
+        int speedFromPID(float pidOut, int stall_speed = 110, int speed_max = 250) {
             float mag = fabs(pidOut);
             
             if (mag < stall_speed)
@@ -303,7 +305,7 @@ class MotorSetPairController {
 
         void resetIMUKeepWorld() {
             imu_sensor->getYaw();
-            worldYawOffset = norm180(lastPerfectYaw - imu_sensor->getYaw());    
+            worldYawOffset += imu_sensor->getYaw();
             imu_sensor->Reset();
         }
 

@@ -54,7 +54,7 @@ class MotorSetPairController {
             stop();
         }
 
-        void run_until_black(float boost = 1.0f, bool back_up = true, bool backward = false, int pow = 140, float black = 0.9) {
+        void run_until_black(float boost = 1.0f, bool back_up = true, bool backward = false, int pow = 180, float black = 0.9) {
             int DIR  = backward ? -1 : 1;
             SensorSet* sensor = backward ? &back_sensor : &front_sensor;
             
@@ -73,7 +73,7 @@ class MotorSetPairController {
                 if (dt <= 0) dt = 0.001f;
                 
                 if (boost > 0.0) {
-                    speed = lerp(230.0, (double) pow, constrain((now - start) / boostTime, 0.0, 1.0));
+                    speed = lerp(230.0, (double) pow, constrain((now - start) / boostTime, 0.0, 0.0));
                 }
 
                 double direction = 0.0;
@@ -97,10 +97,11 @@ class MotorSetPairController {
             align(backward);
             
             if (back_up) {
-                move(DIR*-102, 0.0);
+                move(DIR*-150, 0.0);
                 delay(130);
                 stop();
             }
+            
         }
         
         void run_until_white() {
@@ -232,9 +233,9 @@ class MotorSetPairController {
             
             float absError = fabs(error);
             if (absError >= 100) {
-                yawPID = {1.25, 0.0, 0.0};
+                yawPID = {1.80, 0.0, 0.0};
             } else {
-                yawPID = {2.0, 0.0, 0.0};
+                yawPID = {3, 0.0, 0.0};
             }
             
             yawPID.reset();
@@ -249,6 +250,7 @@ class MotorSetPairController {
                 float yaw = getWorldYaw();
                 int now = millis();
                 float dt = (now - lastTime) / 1000.0f;
+
                 lastTime = now;
                 if (dt <= 0) dt = 0.001f;
 

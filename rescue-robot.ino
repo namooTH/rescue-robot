@@ -53,11 +53,11 @@ void deploy_dice() {
 }
 
 void deflag() {
-    servo(2, 80);
+    servo(2, 180);
 }
 
 void flag() {
-    servo(2, 180);
+    servo(2, 80);
 }
 
 void run_auto() {
@@ -89,23 +89,24 @@ void run() {
     motor_controller.run_until_black(0.0, true, true);
     motor_controller.rotate_to(180.0);
     motor_controller.run_until_black(0.0);
+    motor_controller.run(-0.1);
     motor_controller.rotate_to(-90.0);
-    motor_controller.run_until_black(0.0);
+    motor_controller.run_until_black();
     motor_controller.rotate_to(180.0);
-    motor_controller.run_until_black(0.0, true, false, 100);
+    motor_controller.run_until_black(0.0, true, false, 130);
     motor_controller.run(-0.1);
     motor_controller.rotate_to(90.0);
     motor_controller.run_until_black(0.0); //checkpoint 1
     
     motor_controller.run_until_black(0.0, true, true, 150);
     motor_controller.rotate_to(0.0);
-    motor_controller.run_until_black(0, true, false, 100);
+    motor_controller.run_until_black(0, true, false, 130);
     motor_controller.rotate_to(-90.0);
     motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(180.0);
     motor_controller.run_until_black(0.0);
     motor_controller.run(1);
-    motor_controller.run_until_black(0.0);
+    motor_controller.run_until_black(0.0, true, false, 180);
     motor_controller.run(-0.2);
     deploy_dice(); // green
     
@@ -113,7 +114,7 @@ void run() {
     motor_controller.rotate_to(-90.0);
     motor_controller.run_until_black(0.0, true, false, 140);
     motor_controller.rotate_to(0.0);
-    motor_controller.run_until_black(0.0);
+    motor_controller.run_until_black(0.0, true, false, 190);
     motor_controller.rotate_to(-90.0);
     motor_controller.align();
     motor_controller.run_until_black();
@@ -130,7 +131,7 @@ void run() {
     
     motor_controller.run_until_black(0.0, true, true);
     motor_controller.rotate_to(90.0);
-    motor_controller.run(1.0);
+    motor_controller.run(0.8);
     motor_controller.rotate_to(180.0);
     motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(-90.0);
@@ -138,7 +139,7 @@ void run() {
     motor_controller.rotate_to(180.0);
     motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(90.0);
-    motor_controller.run_until_black(0.0);
+    motor_controller.run_until_black(1.5);
     deploy_dice();
     flag();
     
@@ -147,7 +148,7 @@ void run() {
 
 void test_motor() {
     while (1) {
-        motor_controller.move(40, 0.0);
+        motor_controller.move(100, 0.0);
     }
 }
 

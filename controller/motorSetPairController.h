@@ -204,11 +204,10 @@ class MotorSetPairController {
             float error = norm180(targetDeg - getWorldYaw());
             float dir = (error > 0) ? 1.0f : -1.0f;
             
-            float absError = fabs(error);
-            if (absError >= 100) {
+            if (fabs(error) >= 180) {
                 yawPID = {4.0, 0.0, 0.5};
             } else {
-                yawPID = {4.5, 0.0, 5.0}; //4.5, 0.0, 4.5
+                yawPID = {4.6, 0.0, 5.0}; //4.5, 0.0, 4.5
             }
             
             yawPID.reset();
@@ -217,7 +216,11 @@ class MotorSetPairController {
             float lastYaw = MAXFLOAT;
             int lastStallYawTime = lastTime;
             
-            int stallSpeed = 5;
+            const int minStallSpeed = 5;
+            const int maxStallSpeed = 110;
+            int stallSpeed = minStallSpeed;
+
+            float yawDiff = 3.0;
             
             while (true) {
                 float yaw = getWorldYaw();
@@ -225,23 +228,24 @@ class MotorSetPairController {
                 float dt = (now - lastTime) / 1000.0f;
                 lastTime = now;
                 if (dt <= 0) dt = 0.001f;
-
+                
                 error = norm180(targetDeg - yaw);
                 float pidOut = yawPID.update(error, dt);
                 dir = (error > 0) ? 1.0f : -1.0f;
 
-                if (fabs(yaw - lastYaw) > 0.2) {
+                if (fabs(yaw - lastYaw) > yawDiff) {
                     lastStallYawTime = millis();
+                    yawDiff = constrain(yawDiff-0.1, 0.05, 3.0);
                 }
                 lastYaw = yaw;
 
                 if (now - lastStallYawTime > 50) {
-                    stallSpeed = constrain(stallSpeed+(5000*dt), 5, 110);
+                    stallSpeed = constrain(stallSpeed+(1000*dt), minStallSpeed, maxStallSpeed);
                 } else {
-                    stallSpeed = 5;
+                    stallSpeed = minStallSpeed;
                 }
             
-                if (fabs(error) < 0.05f) break;
+                if (fabs(error) < 0.070f) break;
                 
                 move(speedFromPID(pidOut, stallSpeed), dir);
             }

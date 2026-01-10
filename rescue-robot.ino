@@ -43,7 +43,7 @@ void run() {
     motor_controller.run_until_black(0.0);
     motor_controller.rotate_to(-90.0);
     motor_controller.run_until_black(0.0);
-    motor_controller.run(-0.3);
+    motor_controller.run(-0.4);
     deploy_dice(); //yellow
     
     motor_controller.run_until_black(0.0, true, true);
@@ -67,7 +67,7 @@ void run() {
     motor_controller.run_until_black(0.0);
     motor_controller.run(1);
     motor_controller.run_until_black(0.0, true, false, 180);
-    motor_controller.run(-0.2);
+    motor_controller.run(-0.3);
     deploy_dice(); // green
     
     motor_controller.run(-0.6);

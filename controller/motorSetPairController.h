@@ -90,7 +90,7 @@ class MotorSetPairController {
             };
 
             move(DIR*-pow, 0.0);
-            delay(300);
+            delay(220);
             stop();
 
             delay(100);
@@ -112,31 +112,6 @@ class MotorSetPairController {
                 double direction = sensor_set_pair_controller.get_direction();
                 move(127, direction);
             };
-        }
-
-        bool check_front(float timeout = 2.0, bool back_up = true) {
-            int start = millis();
-            float elapsed = 0;
-            bool found = false;
-            while (elapsed < timeout) {
-                elapsed = (millis() - start) / 1000.0;
-                if (front_sensor.get_normalised() > 0.8) {
-                    found = true;
-                    break;
-                }
-                move(40, 0.0);
-            }
-            if (found) {
-                align(true);
-            }
-
-            if (back_up) {
-                move(-40, 0.0);
-                delay(elapsed * 1000);
-                stop();
-            }
-
-            return found;
         }
 
         PID alignPID = {4.0, 0.0, 0.4};

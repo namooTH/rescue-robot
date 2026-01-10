@@ -33,7 +33,6 @@ MotorSetPairController  motor_controller  = { sensor_controller,
                                               motorSets[1] };
 
 
-#ifdef DEBUG
 #include <string>
 String sensor_debug_names[4] = {
     "Front Sensor",
@@ -41,7 +40,6 @@ String sensor_debug_names[4] = {
     "Left Sensor",
     "Right Sensor"
 };
-#endif
 
 void cali_sensors() {
     size_t sensor_idx = 0;
@@ -49,9 +47,7 @@ void cali_sensors() {
         while (!SW_A()) {
             clear();
             drawTextFmt(0, 0, WHITE, "White");
-            #ifdef DEBUG
             drawTextFmt(0, 10, WHITE, sensor_debug_names[sensor_idx].c_str());
-            #endif
             drawTextFmt(0, 30, WHITE, "%d        %d", sensor_set.left->get_value(), sensor_set.right->get_value());
             flip();
         }
@@ -65,9 +61,7 @@ void cali_sensors() {
         while (!SW_A()) {
             clear();
             drawTextFmt(0, 0, WHITE, "Black");
-            #ifdef DEBUG
             drawTextFmt(0, 10, WHITE, sensor_debug_names[sensor_idx].c_str());
-            #endif
             drawTextFmt(0, 30, WHITE, "%d        %d", sensor_set.left->get_value(), sensor_set.right->get_value());
             flip();
         }

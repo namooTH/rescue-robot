@@ -54,7 +54,7 @@ class MotorSetPairController {
             stop();
         }
 
-        void run_until_black(float boost = 1.0f, bool back_up = true, bool backward = false, int pow = 178) {
+        void run_until_black(float boost = 0.0f, bool back_up = true, bool backward = false, int pow = 178, float black = 0.9) {
             int DIR  = backward ? -1 : 1;
             SensorSet* sensor = backward ? &back_sensor : &front_sensor;
             
@@ -66,7 +66,7 @@ class MotorSetPairController {
             
             int boostTime = 270.0f * fabs(boost);
 
-            while (sensor->left->get_normalised() < 0.9 && sensor->right->get_normalised() < 0.9) {
+            while (sensor->left->get_normalised() < black && sensor->right->get_normalised() < black) {
                 now = millis();
                 float dt = (now - lastTime) / 1000.0f;
                 lastTime = now;
@@ -103,14 +103,13 @@ class MotorSetPairController {
             }
         }
         
-        void run_until_white() {
-            SensorSet* sensor = nullptr;
-            double (SensorSet::*sensor_func)() = &SensorSet::get_normalised;
-            sensor = backward ? &back_sensor : &front_sensor;
+        void run_until_white(bool backward = false) {
+            int DIR  = backward ? -1 : 1;
+            SensorSet* sensor = backward ? &back_sensor : &front_sensor;
 
             while (sensor->get_normalised() > 0.1) {
                 double direction = sensor_set_pair_controller.get_direction();
-                move(127, direction);
+                move(DIR*127, direction);
             };
         }
 
@@ -135,7 +134,7 @@ class MotorSetPairController {
                 int lastTime = now;
 
                 while (sensor->get_normalised() >= BLACK_MIN) {
-                    if (now - start > 200) {
+                    if (now - start > 500) {
                         unable = true;
                         stop();
                         return;
@@ -145,7 +144,7 @@ class MotorSetPairController {
                     unable = false;
                 }
                 while (sensor->get_normalised() < BLACK_MIN) {
-                    if (now - start > 200) {
+                    if (now - start > 500) {
                         unable = true;
                         stop();
                         return;
@@ -217,7 +216,7 @@ class MotorSetPairController {
             int lastStallYawTime = lastTime;
             
             const int minStallSpeed = 5;
-            const int maxStallSpeed = 110;
+            const int maxStallSpeed = 250;
             int stallSpeed = minStallSpeed;
 
             float yawDiff = 3.0;
@@ -239,13 +238,13 @@ class MotorSetPairController {
                 }
                 lastYaw = yaw;
 
-                if (now - lastStallYawTime > 50) {
+                if (now - lastStallYawTime > 10) {
                     stallSpeed = constrain(stallSpeed+(1000*dt), minStallSpeed, maxStallSpeed);
                 } else {
                     stallSpeed = minStallSpeed;
                 }
             
-                if (fabs(error) < 0.070f) break;
+                if (fabs(error) < 0.050f) break;
                 
                 move(speedFromPID(pidOut, stallSpeed), dir);
             }

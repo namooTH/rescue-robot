@@ -112,8 +112,6 @@ class MotorSetPairController {
                 move(DIR*127, direction);
             };
         }
-
-        PID alignPID = {4.0, 0.0, 0.4};
         
         void align(bool backward = true) {
             SensorSet* nearSensor = backward ? &back_sensor : &front_sensor;
@@ -133,7 +131,7 @@ class MotorSetPairController {
                 int start = now;
                 int lastTime = now;
 
-                while (sensor->get_normalised() >= BLACK_MIN) {
+                while (sensor->get_normalised() >= BLACK_MIN && !unable) {
                     if (now - start > 500) {
                         unable = true;
                         stop();
@@ -143,7 +141,7 @@ class MotorSetPairController {
                     move(-SEARCH_SPEED, 0.0);
                     unable = false;
                 }
-                while (sensor->get_normalised() < BLACK_MIN) {
+                while (sensor->get_normalised() < BLACK_MIN && !unable) {
                     if (now - start > 500) {
                         unable = true;
                         stop();
@@ -154,8 +152,6 @@ class MotorSetPairController {
                     unable = false;
                 }
                 stop();
-
-                alignPID.reset();
 
                 now = millis();
                 start = now;
@@ -171,8 +167,6 @@ class MotorSetPairController {
                     double strength_error = 1.0 - strength;
                     
                     double dir = sensor->get_direction();
-
-                    float pidOut = alignPID.update(strength_error, dt);
                     
                     if (fabs(dir) < CENTER_EPS) {
                         break;
@@ -206,7 +200,7 @@ class MotorSetPairController {
             if (fabs(error) >= 180) {
                 yawPID = {4.0, 0.0, 0.5};
             } else {
-                yawPID = {4.6, 0.0, 5.0}; //4.5, 0.0, 4.5
+                yawPID = {4.3, 0.0, 5.0}; //4.5, 0.0, 4.5
             }
             
             yawPID.reset();
@@ -216,8 +210,10 @@ class MotorSetPairController {
             int lastStallYawTime = lastTime;
             
             const int minStallSpeed = 5;
-            const int maxStallSpeed = 250;
-            int stallSpeed = minStallSpeed;
+            const int maxStallSpeed = 160;
+            float stallSpeed = minStallSpeed;
+
+            int lastDir = dir;
 
             float yawDiff = 3.0;
             
@@ -232,17 +228,21 @@ class MotorSetPairController {
                 float pidOut = yawPID.update(error, dt);
                 dir = (error > 0) ? 1.0f : -1.0f;
 
+                if (dir != lastDir) {
+                    if (now - lastStallYawTime > 1) {
+                        stallSpeed = minStallSpeed;
+                    }
+                    lastStallYawTime = now;
+                }
+
+                lastDir = dir;
+
                 if (fabs(yaw - lastYaw) > yawDiff) {
-                    lastStallYawTime = millis();
                     yawDiff = constrain(yawDiff-0.1, 0.05, 3.0);
                 }
                 lastYaw = yaw;
 
-                if (now - lastStallYawTime > 10) {
-                    stallSpeed = constrain(stallSpeed+(1000*dt), minStallSpeed, maxStallSpeed);
-                } else {
-                    stallSpeed = minStallSpeed;
-                }
+                stallSpeed = min(stallSpeed+(180*dt), (float) maxStallSpeed);
             
                 if (fabs(error) < 0.050f) break;
                 

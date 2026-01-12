@@ -57,7 +57,7 @@ void run() {
 
     motor_controller.run_until_black(0.0, false, true);
     motor_controller.run_until_white(true);
-    motor_controller.run_until_black(0.0, false, true);
+    motor_controller.run_until_black(0.0, true, true);
     motor_controller.rotate_to(-90.0);
 
     motor_controller.run(1.6);

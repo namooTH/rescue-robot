@@ -1,7 +1,7 @@
 #include "draw/draw.hpp"
 #include "draw/menu.hpp"
 #include "rescueConfig.h"
-#include "doom.h"
+#include "christmas.h"
 
 void setup() {
   asm(".global _printf_float");
@@ -107,7 +107,7 @@ void run() {
   flag();
 
   motor_controller.stop();
-  doom();
+  play_jolly();
 }
 
 

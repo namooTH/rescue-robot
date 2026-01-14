@@ -109,7 +109,11 @@ class MotorSetPairController {
 
             while (sensor->get_normalised() > 0.1) {
                 double direction = sensor_set_pair_controller.get_direction();
-                move(DIR*127, direction);
+                if (fabs(direction) > 0.5) {
+                    move(DIR*127, direction);
+                } else {
+                    move(DIR*127, 0.0);
+                }
             };
         }
         
@@ -200,7 +204,7 @@ class MotorSetPairController {
             if (fabs(error) >= 180) {
                 yawPID = {4.0, 0.0, 0.5};
             } else {
-                yawPID = {4.5, 0.0, 2.5}; //4.5, 0.0, 4.5
+                yawPID = {4.0, 0.0, 2.5}; //4.5, 0.0, 4.5
             }
             
             yawPID.reset();
@@ -213,6 +217,7 @@ class MotorSetPairController {
             int maxStallSpeed = 120;
             float stallSpeed = minStallSpeed;
             int adjustSpeed = 40;
+            int adjustSpeedTank = 0;
 
             int lastDir = dir;
 
@@ -231,12 +236,13 @@ class MotorSetPairController {
                 dir = (error > 0) ? 1.0f : -1.0f;
 
                 if (dir != lastDir) {
-                    if (now - lastStallYawTime > 100) {
+                    if (now - lastStallYawTime > 200) {
                         minStallSpeed = 60;
                         adjustSpeed = 60;
                     } else {
                         minStallSpeed = 5;
-                        adjustSpeed = 250;
+                        adjustSpeed = max(200-adjustSpeedTank, 50);
+                        adjustSpeedTank += 50;
                     }
 
                     stallSpeed = minStallSpeed;

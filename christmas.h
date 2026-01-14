@@ -99,7 +99,7 @@
 
 
 // change this to make the song slower or faster
-int tempo = 200;
+int tempo = 280;
 
 // change this to whichever pin you want to use
 int buzzer = 11;

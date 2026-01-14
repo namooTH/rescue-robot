@@ -200,7 +200,7 @@ class MotorSetPairController {
             if (fabs(error) >= 180) {
                 yawPID = {4.0, 0.0, 0.5};
             } else {
-                yawPID = {4.3, 0.0, 5.0}; //4.5, 0.0, 4.5
+                yawPID = {4.5, 0.0, 2.5}; //4.5, 0.0, 4.5
             }
             
             yawPID.reset();
@@ -209,15 +209,17 @@ class MotorSetPairController {
             float lastYaw = MAXFLOAT;
             int lastStallYawTime = lastTime;
             
-            const int minStallSpeed = 5;
-            const int maxStallSpeed = 160;
+            int minStallSpeed = 60;
+            int maxStallSpeed = 120;
             float stallSpeed = minStallSpeed;
+            int adjustSpeed = 40;
 
             int lastDir = dir;
 
             float yawDiff = 3.0;
             
             while (true) {
+                clear();
                 float yaw = getWorldYaw();
                 int now = millis();
                 float dt = (now - lastTime) / 1000.0f;
@@ -229,20 +231,29 @@ class MotorSetPairController {
                 dir = (error > 0) ? 1.0f : -1.0f;
 
                 if (dir != lastDir) {
-                    if (now - lastStallYawTime > 1) {
-                        stallSpeed = minStallSpeed;
+                    if (now - lastStallYawTime > 100) {
+                        minStallSpeed = 60;
+                        adjustSpeed = 60;
+                    } else {
+                        minStallSpeed = 5;
+                        adjustSpeed = 250;
                     }
+
+                    stallSpeed = minStallSpeed;
                     lastStallYawTime = now;
                 }
 
                 lastDir = dir;
+
+                drawTextFmt(0,0,WHITE,"%f", stallSpeed);
+                flip();
 
                 if (fabs(yaw - lastYaw) > yawDiff) {
                     yawDiff = constrain(yawDiff-0.1, 0.05, 3.0);
                 }
                 lastYaw = yaw;
 
-                stallSpeed = min(stallSpeed+(180*dt), (float) maxStallSpeed);
+                stallSpeed = min(stallSpeed+(adjustSpeed*dt), (float) maxStallSpeed);
             
                 if (fabs(error) < 0.050f) break;
                 

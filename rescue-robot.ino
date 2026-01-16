@@ -32,78 +32,71 @@ void flag() {
 void run() {
   motor_controller.run_until_white();
   motor_controller.run_until_black();
-
-  motor_controller.rotate_to(-90.0);
+  motor_controller.rotate_to(90);
+  motor_controller.align();
   motor_controller.run_until_black();
-  motor_controller.rotate_to(180.0);
+  motor_controller.rotate_to(180);
   motor_controller.run_until_black();
-  motor_controller.rotate_to(-90.0);
+  motor_controller.rotate_to(-90);
   motor_controller.run_until_black();
-  motor_controller.rotate_to(0.0);
+  motor_controller.rotate_to(180);
+  motor_controller.run_until_black();
+  motor_controller.rotate_to(-90);
+  motor_controller.run_until_black();
+  motor_controller.rotate_to(0);
   motor_controller.run_until_black();
   deploy_dice();  //blue
 
   motor_controller.run_until_black(0.0, true, true);
-  motor_controller.rotate_to(90.0);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(0.0);
+  motor_controller.rotate_to(-90);
+  motor_controller.align(false);
   motor_controller.run_until_black(0.0, true, true);
-  motor_controller.run_until_black(1.0);
-  motor_controller.rotate_to(90.0);
+  motor_controller.rotate_to(180);
   motor_controller.run_until_black();
-  motor_controller.rotate_to(0.0);
+  motor_controller.rotate_to(-90);
+  motor_controller.run_until_black(0.0, true, false, 120); // checkpoint 2
+  motor_controller.run_until_black(0.0, true, true, 120);
+  motor_controller.rotate_to(0);
   motor_controller.run_until_black();
-  motor_controller.run(-0.05);
-  motor_controller.rotate_to(-90.0);
-  motor_controller.run_until_black(0.00, true, false, 140);
-  motor_controller.rotate_to(180.0);
+  motor_controller.rotate_to(-90);
+  motor_controller.run(0.9);
+  motor_controller.rotate_to(0);
   motor_controller.run_until_black();
-  motor_controller.rotate_to(90.0);
+  motor_controller.rotate_to(90);
   motor_controller.run_until_black();
-  motor_controller.rotate_to(180.0);
+  motor_controller.rotate_to(0);
   motor_controller.run_until_black();
-  motor_controller.rotate_to(90.0);
+  motor_controller.rotate_to(-90);
+  motor_controller.run(0.9);
+  motor_controller.rotate_to(0);
   motor_controller.run_until_black();
-  motor_controller.rotate_to(0.0);
-  motor_controller.run_until_black(0.0, true, false, 120);
-  motor_controller.rotate_to(90.0);
-  motor_controller.run_until_black(0.00, true, true);
+  motor_controller.rotate_to(-90);
+  motor_controller.run_until_black();
+  motor_controller.rotate_to(180);
+  motor_controller.run_until_black();
+  motor_controller.rotate_to(90);
   motor_controller.run_until_black();
   deploy_dice();  //red
 
-  motor_controller.run_until_black(0.00, true, true);
-  motor_controller.rotate_to(180.0);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(-90.0);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(0.0);
-  motor_controller.run_until_black(0.0, true, false, 120);
-  motor_controller.rotate_to(-90.0);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(0.0);
-  motor_controller.run_until_black();
-  motor_controller.run(-0.35);
-  deploy_dice();  //yellow
-
-  motor_controller.run(-1.45);
-  motor_controller.rotate_to(90.0);
-  motor_controller.run_until_black();
   motor_controller.run_until_black(0.0, true, true);
-  motor_controller.rotate_to(180.0);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(90.0);
-  motor_controller.run_until_black();
+  motor_controller.rotate_to(0);
+  motor_controller.run_until_black(0.0);
+  motor_controller.rotate_to(90);
+  motor_controller.run_until_black(0.0);
+  motor_controller.rotate_to(0);
+  motor_controller.run_until_black(0.0);
+  motor_controller.rotate_to(-90);
+  motor_controller.run_until_black(0.0, false);
   motor_controller.run_until_white();
-  motor_controller.run_until_black();  //checkpoint 1
-
-  motor_controller.run_until_black(0.0, true, true);
-  motor_controller.run_until_white(true);
-  motor_controller.run_until_black(0.0, true, true);
-  motor_controller.rotate_to(0.0);
-  motor_controller.run_until_black(0.0, true, true);
   motor_controller.run_until_black(0.0);
   deploy_dice();  //green
-
+  motor_controller.run_until_black(0.0, false, true);
+  motor_controller.run_until_white(true);
+  motor_controller.run_until_black(0.0, true, true);
+  motor_controller.rotate_to(180);
+  motor_controller.run_until_black(1.0);
+  motor_controller.run(-0.35);
+  deploy_dice();  //yellow
   flag();
 
   motor_controller.stop();

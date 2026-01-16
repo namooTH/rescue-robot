@@ -1,20 +1,28 @@
 #define RESCUE_CONFIG
 
 #include <POP32.h>
+#include <string>
 #include "controller/sensorSetPairController.h"
 #include "controller/motorSetPairController.h"
 #include "draw/draw.hpp"
 #include "sensor/IMUSensor.h"
 
+
 const MotorSet motorSets[2] = { {1, 2, 0, 0, 0, 3},   // Front
                                 {3, 4, 0, 0, 0, 3}};  // Back
 
 Sensor sensors[8] = {
-    {0, 516, 2861}, {1, 277, 2139},  // Front
-    {2, 602, 3272}, {3, 270, 1501},  // Back
-    {4, 325, 2327}, {5, 509, 3406},  // Left
-    {6, 305, 2062}, {7, 523, 3702}   // Right
+    {0, 444, 2093}, {1, 710, 3732},  // Front
+    {2, 719, 3101}, {3, 235, 1168},  // Back
+    {4, 618, 3516}, {5, 403, 1990},  // Left
+    {6, 692, 2835}, {7, 601, 2693}   // Right
 };
+
+
+void parse_sensor_data(String data) {
+
+}
+
 
 
 SensorSet sensorSets[4] = { { &sensors[0], &sensors[1] },   // Front
@@ -34,7 +42,6 @@ MotorSetPairController  motor_controller  = { sensor_controller,
                                               motorSets[1] };
 
 
-#include <string>
 String sensor_debug_names[4] = {
     "Front Sensor",
     "Back Sensor",
@@ -72,17 +79,21 @@ void cali_sensors() {
     }
 
     clear();
-    drawTextFmt(0, 0, WHITE, "Plug in USB to get value");
+    drawTextFmt(0, 0, WHITE, "Plug in USB to");
+    drawTextFmt(0, 10, WHITE, "get values");
     flip();
     while (!SW_A());
     while (SW_A());
+
+    for (SensorSet &sensor_set: sensorSets) {
+        SerialUSB.printf("%d %d %d %d %d %d ", sensor_set.left->channel, sensor_set.left->whiteValue, sensor_set.left->blackValue, sensor_set.right->channel, sensor_set.right->whiteValue, sensor_set.right->blackValue);
+    }
 
     clear();
     sensor_idx = 0;
     drawTextFmt(0, 0, WHITE, "White");
     for (SensorSet &sensor_set: sensorSets) {
         drawTextFmt(0, 10+(10*sensor_idx), WHITE, "%d        %d", sensor_set.left->whiteValue, sensor_set.right->whiteValue);
-        SerialUSB.printf("%d        %d\n", sensor_set.left->whiteValue, sensor_set.right->whiteValue);
         sensor_idx++;
     }
     SerialUSB.print("\n");
@@ -95,7 +106,6 @@ void cali_sensors() {
     drawTextFmt(0, 0, WHITE, "Black");
     for (SensorSet &sensor_set: sensorSets) {
         drawTextFmt(0, 10+(10*sensor_idx), WHITE, "%d        %d", sensor_set.left->blackValue, sensor_set.right->blackValue);
-        SerialUSB.printf("%d        %d\n", sensor_set.left->blackValue, sensor_set.right->blackValue);
         sensor_idx++;
     }
     flip();

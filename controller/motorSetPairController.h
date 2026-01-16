@@ -6,7 +6,7 @@
 
 class MotorSetPairController {
     public:
-        SensorSetPairController sensor_set_pair_controller;
+        SensorSetPairController *sensor_set_pair_controller;
         IMUSensor *imu_sensor;
 
         SensorSet front_sensor;
@@ -18,7 +18,7 @@ class MotorSetPairController {
         SensorSet far_front_sensor;
         SensorSet far_back_sensor;
         
-        MotorSetPairController(const SensorSetPairController& sspc,
+        MotorSetPairController(SensorSetPairController* sspc,
                                IMUSensor* imu,
                                const SensorSet& front_s,
                                const SensorSet& back_s,
@@ -30,10 +30,10 @@ class MotorSetPairController {
               back_sensor(back_s),
               front(front_m),
               back(back_m),
-              far_front_sensor{sensor_set_pair_controller.left->left,
-                               sensor_set_pair_controller.right->left},
-              far_back_sensor{sensor_set_pair_controller.left->right,
-                              sensor_set_pair_controller.right->right}
+              far_front_sensor{sensor_set_pair_controller->left->left,
+                               sensor_set_pair_controller->right->left},
+              far_back_sensor{sensor_set_pair_controller->left->right,
+                              sensor_set_pair_controller->right->right}
         {}
 
         bool backward = false;
@@ -78,8 +78,8 @@ class MotorSetPairController {
 
                 double direction = 0.0;
 
-                double ln = backward ? sensor_set_pair_controller.left->right->get_normalised() : sensor_set_pair_controller.left->left->get_normalised();
-                double rn = backward ? sensor_set_pair_controller.right->right->get_normalised() : sensor_set_pair_controller.right->left->get_normalised();
+                double ln = backward ? sensor_set_pair_controller->left->right->get_normalised() : sensor_set_pair_controller->left->left->get_normalised();
+                double rn = backward ? sensor_set_pair_controller->right->right->get_normalised() : sensor_set_pair_controller->right->left->get_normalised();
 
                 if (!(ln < 0.9 && rn < 0.9)) {
                     double dir = ln - rn;
@@ -108,7 +108,7 @@ class MotorSetPairController {
             SensorSet* sensor = backward ? &back_sensor : &front_sensor;
 
             while (sensor->get_normalised() > 0.1) {
-                double direction = sensor_set_pair_controller.get_direction();
+                double direction = sensor_set_pair_controller->get_direction();
                 if (fabs(direction) > 0.5) {
                     move(DIR*127, direction);
                 } else {

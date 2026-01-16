@@ -9,6 +9,7 @@ void setup() {
   Wire.setClock(1000000);
   OLED_DMA_Init();
 
+  delay(20);
   servo(1, 175);
   deflag();
 }
@@ -122,6 +123,7 @@ Menu tests = { { { "Test Motor", []() {
                  { "Test Dice", deploy_dice },
                  { "Test Flag", flag },
                  { "Test DeFlag", deflag },
+                 { "Sensor Calibrated Data", debug_sensor },
                  { "Align", []() {
                     motor_controller.align(true);
                   } },

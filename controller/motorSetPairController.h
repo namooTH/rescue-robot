@@ -204,7 +204,7 @@ class MotorSetPairController {
             if (fabs(error) >= 180) {
                 yawPID = {4.0, 0.0, 0.5};
             } else {
-                yawPID = {4.0, 0.0, 2.5}; //4.5, 0.0, 4.5
+                yawPID = {4.5, 0.0, 2.5}; //4.5, 0.0, 4.5
             }
             
             yawPID.reset();
@@ -241,8 +241,8 @@ class MotorSetPairController {
                         adjustSpeed = 60;
                     } else {
                         minStallSpeed = 5;
-                        adjustSpeed = max(200-adjustSpeedTank, 50);
-                        adjustSpeedTank += 50;
+                        adjustSpeed = max(300-adjustSpeedTank, 50);
+                        adjustSpeedTank += 5;
                     }
 
                     stallSpeed = minStallSpeed;

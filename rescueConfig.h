@@ -6,7 +6,6 @@
 #include "draw/draw.hpp"
 #include "sensor/IMUSensor.h"
 
-
 const MotorSet motorSets[2] = { {1, 2, 0, 0, 0, 3},   // Front
                                 {3, 4, 0, 0, 0, 3}};  // Back
 
@@ -17,7 +16,7 @@ Sensor sensors[8] = {
     {6}, {7}   // Right
 };
 
-const String sensor_data = "0 2079 447 1 3769 704 2 2945 603 3 1159 226 4 3567 567 5 1983 371 6 2950 600 7 2631 523";
+const String sensor_data = "0 2173 405 1 3702 756 2 2141 409 3 1767 297 4 2484 516 5 2858 587 6 2991 700 7 3363 640";
 
 // not using sstream beacuse it cannot be used with the arduino's string implementation
 void parse_sensor_data(String raw_data) {

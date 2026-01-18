@@ -3,6 +3,7 @@
 #include "sensorSetPairController.h"
 #include "../sensor/IMUSensor.h"
 #include "../utils/PID.h"
+#include "../utils/mathHelper.h"
 
 class MotorSetPairController {
     public:
@@ -52,6 +53,51 @@ class MotorSetPairController {
             move((signbit(tile) ? -1 : 1) * speed, 0.0);
             delay(time_per_time * fabs(tile));
             stop();
+        }
+
+        int check_front(float black = 0.9) {
+            SensorSet* sensor = &front_sensor;
+
+            int start = millis();
+
+            while (sensor->left->get_normalised() < black && sensor->right->get_normalised() < black) {
+                move(153, 0.0);
+            };
+
+            int stopt = millis();
+            move(-153, 0.0);
+            delay(220);
+            stop();
+            align(false);
+            move(-102, 0.0);
+            delay(140);
+            stop();
+            return stopt - start;
+        }
+
+        bool check_front_tile(float tile = 1.0, float black = 0.9) {
+            SensorSet* sensor = &front_sensor;
+
+            int start = millis();
+            bool found_black = true;
+
+
+            while (sensor->left->get_normalised() < black && sensor->right->get_normalised() < black) {
+                if (millis() - start > 550) {
+                    found_black = false;
+                    break;
+                }
+                move(153, 0.0);
+            };
+            move(-153, 0.0);
+            delay(220);
+            stop();
+
+            align(false);
+            move(-102, 0.0);
+            delay(140);
+            stop();
+            return found_black;
         }
 
         void run_until_black(float boost = 0.0f, bool back_up = true, bool backward = false, int pow = 178, float black = 0.9) {
@@ -202,9 +248,9 @@ class MotorSetPairController {
             float dir = (error > 0) ? 1.0f : -1.0f;
             
             if (fabs(error) >= 180) {
-                yawPID = {4.0, 0.0, 0.5};
+                yawPID = {3.6, 0.0, 0.7};
             } else {
-                yawPID = {4.5, 0.0, 2.5}; //4.5, 0.0, 4.5
+                yawPID = {3.8, 0.0, 0.7}; //4.5, 0.0, 4.5
             }
             
             yawPID.reset();
@@ -236,13 +282,13 @@ class MotorSetPairController {
                 dir = (error > 0) ? 1.0f : -1.0f;
 
                 if (dir != lastDir) {
-                    if (now - lastStallYawTime > 200) {
+                    if (now - lastStallYawTime < 200) {
+                        minStallSpeed = 5;
+                        adjustSpeed = max(400-adjustSpeedTank, 50);
+                        adjustSpeedTank += 60;
+                    } else {
                         minStallSpeed = 60;
                         adjustSpeed = 60;
-                    } else {
-                        minStallSpeed = 5;
-                        adjustSpeed = max(300-adjustSpeedTank, 50);
-                        adjustSpeedTank += 5;
                     }
 
                     stallSpeed = minStallSpeed;
@@ -261,7 +307,7 @@ class MotorSetPairController {
 
                 stallSpeed = min(stallSpeed+(adjustSpeed*dt), (float) maxStallSpeed);
             
-                if (fabs(error) < 0.050f) break;
+                if (fabs(error) < 0.035f) break;
                 
                 move(speedFromPID(pidOut, stallSpeed), dir);
             }
@@ -270,6 +316,19 @@ class MotorSetPairController {
         
             lastPerfectYaw = targetDeg;
             resetIMUKeepWorld();
+        }
+
+        void u_turn(int dir = 1, int time = 570, float wide = 6.5) {
+            int start = millis();
+            float elapsed = 1;
+            while (elapsed < time) {
+                elapsed = millis() - start;
+                move(250, dir * math_curve((elapsed / wide) / time));
+            };
+            rotate_to(norm180(180 - getWorldYaw()));
+            move(250, 0.0, true);
+            delay(100);
+            stop();
         }
 
     private:

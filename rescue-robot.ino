@@ -33,69 +33,57 @@ void flag() {
 void run() {
   motor_controller.run_until_white();
   motor_controller.run_until_black();
-  motor_controller.rotate_to(-90);
-  motor_controller.run_until_black();
+  motor_controller.rotate_to(90);
+  // motor_controller.u_turn(1, 550, 6.0);
+  motor_controller.run_until_black(1.0);
   motor_controller.rotate_to(180);
-  motor_controller.run_until_black();
+  motor_controller.run_until_black(1.0);
   motor_controller.rotate_to(90);
-  motor_controller.run_until_black(); // checkpoint 1
-  motor_controller.run_until_black(0.0, true, true);
-
+  motor_controller.run(0.75);
   motor_controller.rotate_to(0);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(90);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(0);
-  motor_controller.run(1.0);
-  motor_controller.rotate_to(-90);
-  motor_controller.run_until_black(0.0, true, false, 178, 0.5);
+  motor_controller.run_until_black(1.0);
   deploy_dice();  //green
   motor_controller.run_until_black(0.0, true, true);
-  motor_controller.rotate_to(0);  
-
-  motor_controller.run_until_black();
   motor_controller.rotate_to(90);
   motor_controller.run_until_black();
-  motor_controller.rotate_to(180);
-  motor_controller.run_until_black(0.0, false);
-  motor_controller.run_until_white();
-  motor_controller.run_until_black();
-  deploy_dice();  //red
-  motor_controller.run_until_black(0.0, false, true);
-  motor_controller.run_until_white(true);
+  motor_controller.run(0.05);
+  motor_controller.rotate_to(0);
+  motor_controller.run(2.5, 100, 800);
+  motor_controller.run_until_black(2.0);
+  motor_controller.run(-2.8);
 
-  motor_controller.run(-0.6);
   motor_controller.rotate_to(-90);
-  motor_controller.run(-0.1);
-  motor_controller.align();
-  motor_controller.run_until_black(0.0, true, false, 165);
-  motor_controller.run(-0.1);
+  motor_controller.run_until_black(1.0);
+  motor_controller.rotate_to(0);
+  motor_controller.run_until_black(1.0);
+  motor_controller.rotate_to(-90);
+  motor_controller.run_until_black(1.0);
   motor_controller.rotate_to(180);
-  motor_controller.run_until_black(0.0);
-  motor_controller.rotate_to(0);
-  motor_controller.run_until_black(0.0);
+  motor_controller.run_until_black(1.0);
   motor_controller.rotate_to(90);
-  motor_controller.align();
-  motor_controller.run(1.1);
-  motor_controller.rotate_to(0);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(90);
-  motor_controller.run_until_black();
-  deploy_dice();  //blue
+  motor_controller.run_until_black(1.0);
+  deploy_dice();  //red
 
   motor_controller.run_until_black(0.0, true, true);
-  motor_controller.rotate_to(180);
-  motor_controller.run_until_black();
-  motor_controller.rotate_to(90);
-  motor_controller.run_until_black();
   motor_controller.rotate_to(0);
-  motor_controller.run_until_black();
+  motor_controller.run_until_black(2.0);
+  deploy_dice();  //blue
+
+  motor_controller.run(-1.6);
+  motor_controller.rotate_to(90);
+  motor_controller.run_until_black(1.0);
+  motor_controller.rotate_to(0);
+  motor_controller.run_until_black(1.0);
   motor_controller.rotate_to(-90);
-  motor_controller.run_until_black();
+  motor_controller.run_until_black(1.0);
   motor_controller.rotate_to(0);
-  motor_controller.run_until_black();
+  motor_controller.run_until_black(1.0);
   motor_controller.rotate_to(90);
-  motor_controller.run_until_black(0.0, true, false, 140);
+  motor_controller.run_until_black(0.0, false);
+  motor_controller.run_until_white();
+  motor_controller.run_until_black(0.0);
+  motor_controller.rotate_to(180);
+  motor_controller.run_until_black(0.0);
   motor_controller.run(-0.35);
   deploy_dice();  //yellow
   flag();
@@ -139,9 +127,26 @@ Menu tests = { { { "Test Motor", []() {
                   } },
                  { "Run Until Black Backward", []() {
                     motor_controller.run_until_black(0.0, true, true);
-                  } } } };
+                  } },
+                 { "Test U-Turn", []() {
+                    motor_controller.u_turn(-1, 700, 7.0);
+                  } }, } };
+
+void run_auto() {
+  int angle_change = 0;
+  while (1) {
+    motor_controller.rotate_to(angle_change);
+    bool found_black = motor_controller.check_front_tile(0.5);
+    if (found_black) {
+      angle_change += 90;
+    }
+    motor_controller.rotate_to(-90 + angle_change);
+    found_black = motor_controller.check_front_tile(0.5);
+  }
+}
 
 Menu menu = { { { "Run", run },
+                { "Auto", run_auto },
                 { "sans", megalovania },
                 { "Tests", []() {
                    tests.menu();

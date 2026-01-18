@@ -16,10 +16,10 @@ Sensor sensors[8] = {
     {6}, {7}   // Right
 };
 
-const String sensor_data = "0 2173 405 1 3702 756 2 2141 409 3 1767 297 4 2484 516 5 2858 587 6 2991 700 7 3363 640";
+const String sensor_data = "0 2984 610 1 2034 395 2 3246 551 3 1356 277 4 2465 542 5 3013 678 6 3516 619 7 2125 400";
 
 // not using sstream beacuse it cannot be used with the arduino's string implementation
-void parse_sensor_data(String raw_data) {
+void parse_sensor_data(String raw_data) { 
     int pos = 0;
     while (pos < raw_data.length()) {
         int space1 = raw_data.indexOf(' ', pos);
